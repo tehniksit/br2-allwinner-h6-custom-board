@@ -4,7 +4,8 @@
 
 /dts-v1/;
 
-#include "sun50i-h6.dtsi"
+#include "sun50i-h6_custom.dtsi"
+//#include "sunxi-common-regulators.dtsi"
 
 #include <dt-bindings/gpio/gpio.h>
 
@@ -16,42 +17,44 @@
 		serial0 = &uart0;
 	};
 
+	framebuffer0: framebuffer@1d385000 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		stdout-path = "display0";
+		compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
+		allwinner,pipeline = "mixer0-lcd0";
+		reg = <0x1d385000 276480>;
+		width = <480>;
+		height = <288>;
+		stride = <960>;
+		format = "r5g6b5";
+		clocks = <&ccu CLK_BUS_TCON_TOP>,
+			<&ccu CLK_TCON_TV0>,
+			<&display_clocks CLK_MIXER0>;
+		lcd-supply = <&vdd_panel>;
+		display = <&tcon_tv>;
+		status = "okay";
+	};
+
+	backlight: backlight {
+		compatible = "gpio-backlight";
+		gpios = <&pio 7 8 GPIO_ACTIVE_LOW>; /* PH8 */
+		enable-active-low;
+		status = "okay";
+	};
+
 	chosen {
 		stdout-path = "serial0:115200n8";
-	};
-
-	connector {
-		compatible = "hdmi-connector";
-		type = "a";
-		ddc-en-gpios = <&pio 7 2 GPIO_ACTIVE_HIGH>; /* PH2 */
-
-		port {
-			hdmi_con_in: endpoint {
-				remote-endpoint = <&hdmi_out_con>;
-			};
-		};
-	};
-
-	ext_osc32k: ext_osc32k_clk {
-		#clock-cells = <0>;
-		compatible = "fixed-clock";
-		clock-frequency = <32768>;
-		clock-output-names = "ext_osc32k";
 	};
 
 	leds {
 		compatible = "gpio-leds";
 
-		led-0 {
-			label = "orangepi:red:power";
-			gpios = <&r_pio 0 4 GPIO_ACTIVE_HIGH>; /* PL4 */
-			default-state = "on";
+		heartbeat {
+			label = "my_board:green:heartbeat";
+			gpios = <&r_pio 0 2 GPIO_ACTIVE_LOW>; /*  PL2 LED */
 		};
 
-		led-1 {
-			label = "orangepi:green:status";
-			gpios = <&r_pio 0 7 GPIO_ACTIVE_HIGH>; /* PL7 */
-		};
 	};
 
 	reg_vcc5v: vcc5v {
@@ -62,18 +65,71 @@
 		regulator-max-microvolt = <5000000>;
 		regulator-always-on;
 	};
+
+	vdd_panel: vdd-panel {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc-lcd";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-gpios = <&pio 7 10 GPIO_ACTIVE_HIGH>; /* PH10 AVDD_EN  */
+		enable-active-high;
+	};
+
+	panel: panel {
+		compatible = "edt,etm043080dh6gp";
+		backlight = <&backlight>;
+		power-supply = <&vdd_panel>;
+
+/*
+		display-timings {
+			800x480p60 {
+				native-mode;
+				clock-frequency = <30066000>;
+				hactive = <800>;
+				vactive = <480>;
+				hfront-porch = <50>;
+				hback-porch = <70>;
+				hsync-len = <50>;
+				vback-porch = <0>;
+				vfront-porch = <0>;
+				vsync-len = <50>;
+			};
+		};
+*/
+		port {
+			panel_in_rgb: endpoint {
+				remote-endpoint = <&panel_out_rgb>;
+			};
+		};
+	};
+
 };
 
 &de {
 	status = "okay";
 };
 
-&ehci0 {
+&mixer0 {
+        status = "okay";
+};
+/*
+&simplefb_lcd {
+	panel-supply = <&vdd_panel>;
+	status = "okay";
+};
+*/
+
+&tcon_tv {
+	pinctrl-names = "default";
+	pinctrl-0 = <&lcd_rgb666_pins>;
 	status = "okay";
 };
 
-&ehci3 {
-	status = "okay";
+&tcon_tv_out {
+	panel_out_rgb: endpoint@0 {
+		reg = <0>;
+		remote-endpoint = <&panel_in_rgb>;
+	};
 };
 
 &gpu {
@@ -81,14 +137,9 @@
 	status = "okay";
 };
 
-&hdmi {
-	status = "okay";
-};
 
-&hdmi_out {
-	hdmi_out_con: endpoint {
-		remote-endpoint = <&hdmi_con_in>;
-	};
+&pwm {
+	status = "okay";
 };
 
 &mmc0 {
@@ -98,27 +149,26 @@
 	status = "okay";
 };
 
-&ohci0 {
-	status = "okay";
-};
-
-&ohci3 {
-	status = "okay";
-};
-
 &pio {
 	vcc-pc-supply = <&reg_bldo2>;
 	vcc-pd-supply = <&reg_cldo1>;
 	vcc-pg-supply = <&reg_aldo1>;
-};
 
-&r_ir {
-	status = "okay";
+        lcd_rgb666_pins: lcd-rgb666-pins {
+                pins = "PD0", "PD1", "PD2", "PD3", "PD4",
+                       "PD5", "PD6", "PD7", "PD8", "PD9",
+                       "PD10", "PD11", "PD12", "PD13",
+                       "PD14", "PD15", "PD16", "PD17",
+                       "PD18", "PD19", "PD20", "PD21";
+                function = "lcd0";
+        };
+
 };
 
 &r_pio {
 	vcc-pm-supply = <&reg_bldo3>;
 };
+
 
 &r_rsb {
 	status = "okay";
@@ -240,29 +290,9 @@
 	};
 };
 
-&rtc {
-	clocks = <&ext_osc32k>;
-};
-
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_ph_pins>;
 	status = "okay";
 };
 
-&usb2otg {
-	/*
-	 * OrangePi Lite 2 and One Plus, where this DT is used, don't
-	 * have a controllable VBUS even though they do have an ID pin.
-	 * Using it as anything but a USB host is unsafe.
-	 */
-	dr_mode = "host";
-	status = "okay";
-};
-
-&usb2phy {
-	usb0_id_det-gpios = <&pio 2 6 GPIO_ACTIVE_HIGH>; /* PC6 */
-	usb0_vbus-supply = <&reg_vcc5v>;
-	usb3_vbus-supply = <&reg_vcc5v>;
-	status = "okay";
-};

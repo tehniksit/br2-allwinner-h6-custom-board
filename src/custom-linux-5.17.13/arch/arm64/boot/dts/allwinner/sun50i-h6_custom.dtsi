@@ -889,9 +889,11 @@
 			clocks = <&ccu CLK_BUS_TCON_TV0>,
 				 <&tcon_top CLK_TCON_TOP_TV0>;
 			clock-names = "ahb",
+				      "tcon-ch0",
 				      "tcon-ch1";
 			resets = <&ccu RST_BUS_TCON_TV0>;
 			reset-names = "lcd";
+			clock-output-names = "tcon-pixel-clock";
 
 			ports {
 				#address-cells = <1>;
@@ -914,6 +916,7 @@
 						reg = <1>;
 						remote-endpoint = <&tcon_top_hdmi_in_tcon_tv>;
 					};
+
 				};
 			};
 		};

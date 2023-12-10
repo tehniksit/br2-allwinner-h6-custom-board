@@ -160,7 +160,7 @@ static void sun4i_rgb_encoder_enable(struct drm_encoder *encoder)
 {
 	struct sun4i_rgb *rgb = drm_encoder_to_sun4i_rgb(encoder);
 
-	DRM_DEBUG_DRIVER("Enabling RGB output\n");
+	printk("Enabling RGB output\n");
 
 	if (rgb->panel) {
 		drm_panel_prepare(rgb->panel);
@@ -191,7 +191,7 @@ int sun4i_rgb_init(struct drm_device *drm, struct sun4i_tcon *tcon)
 	struct drm_encoder *encoder;
 	struct sun4i_rgb *rgb;
 	int ret;
-
+	printk("--sun4i_rgb_init()\n");
 	rgb = devm_kzalloc(drm->dev, sizeof(*rgb), GFP_KERNEL);
 	if (!rgb)
 		return -ENOMEM;

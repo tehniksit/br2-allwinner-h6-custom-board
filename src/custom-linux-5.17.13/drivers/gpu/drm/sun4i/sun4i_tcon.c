@@ -1119,6 +1119,7 @@ static int sun4i_tcon_bind(struct device *dev, struct device *master,
 	bool has_lvds_rst, has_lvds_alt, can_lvds;
 	int ret;
 
+	printk("--sun4i_tcon_bind()\n");
 	engine = sun4i_tcon_find_engine(drv, dev->of_node);
 	if (IS_ERR(engine)) {
 		dev_err(dev, "Couldn't find matching engine\n");
@@ -1323,6 +1324,7 @@ static int sun4i_tcon_probe(struct platform_device *pdev)
 	struct drm_panel *panel;
 	int ret;
 
+	printk("--sun4i_tcon_probe()\n");
 	quirks = of_device_get_match_data(&pdev->dev);
 
 	/* panels and bridges are present only on TCONs with channel 0 */
@@ -1521,8 +1523,8 @@ static const struct sun4i_tcon_quirks sun8i_a83t_tv_quirks = {
 };
 
 static const struct sun4i_tcon_quirks sun8i_r40_tv_quirks = {
-	.has_channel_1		= true,
-	.polarity_in_ch0	= true,
+	.has_channel_0		= true,
+	.dclk_min_div		= 1,
 	.set_mux		= sun8i_r40_tcon_tv_set_mux,
 };
 

@@ -16,6 +16,27 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
+	chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		simplefb_lcd: framebuffer-lcd {
+			compatible = "allwinner,simple-framebuffer",
+					"simple-framebuffer";
+			allwinner,pipeline = "mixer0-lcd0";
+			reg = <0x1d385000 1440000>;
+			width = <800>;
+			height = <600>;
+			stride = <1600>;
+			format = "r5g6b5";
+			clocks = <&ccu CLK_BUS_TCON_TOP>,
+				    <&ccu CLK_TCON_LCD0>,
+				 <&display_clocks CLK_MIXER0>;
+				status = "disabled";
+		};
+	};
+
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -336,6 +357,15 @@
 				pins = "PH8", "PH9", "PH10";
 				function = "hdmi";
 			};
+
+                        lcd_rgb666_pins: lcd-rgb666-pins {
+                                pins = "PD0", "PD1", "PD2", "PD3", "PD4",
+                                       "PD5", "PD6", "PD7", "PD8", "PD9",
+                                       "PD10", "PD11", "PD12", "PD13",
+                                       "PD14", "PD15", "PD16", "PD17",
+                                       "PD18", "PD19", "PD20", "PD21";
+                                function = "lcd0";
+                        };
 
 			i2c0_pins: i2c0-pins {
 				pins = "PD25", "PD26";
@@ -854,10 +884,17 @@
 					#size-cells = <0>;
 					reg = <1>;
 
+					tcon_top_mixer0_out_tcon_lcd: endpoint@0 {
+						reg = <0>;
+                                                remote-endpoint = <&tcon_lcd_in_tcon_top_mixer0>;
+					};
+
 					tcon_top_mixer0_out_tcon_tv: endpoint@2 {
 						reg = <2>;
 						remote-endpoint = <&tcon_tv_in_tcon_top_mixer0>;
 					};
+
+
 				};
 
 				tcon_top_hdmi_in: port@4 {
@@ -877,8 +914,51 @@
 					tcon_top_hdmi_out_hdmi: endpoint {
 						remote-endpoint = <&hdmi_in_tcon_top>;
 					};
+
 				};
+
 			};
+		};
+
+		tcon_lcd: lcd-controller@6511000 {
+			compatible = "allwinner,sun50i-h6-tcon-tv";
+			reg = <0x06511000 0x1000>;
+			interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_BUS_TCON_LCD0>,
+				 <&tcon_top CLK_TCON_TOP_TV0>;
+			clock-names = "ahb",
+				      "tcon-ch0";
+                        clock-output-names = "tcon-pixel-clock";
+			resets =  <&ccu RST_BUS_TCON_LCD0>;
+			reset-names = "lcd";
+
+	                ports {
+	                        #address-cells = <1>;
+				#size-cells = <0>;
+
+				tcon_lcd_in: port@0 {
+                                        #address-cells = <1>;
+					#size-cells = <0>;
+					reg = <0>;
+
+					tcon_lcd_in_tcon_top_mixer0: endpoint@0 {
+						reg = <0>;
+						remote-endpoint = <&tcon_top_mixer0_out_tcon_lcd>;
+					};
+				};
+
+				tcon_lcd_out: port@1 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <1>;
+/*
+					tcon_lcd_out_tcon_top: endpoint@1 {
+						reg = <1>;
+						remote-endpoint = <&tcon_top_hdmi_in_tcon_lcd>;
+					};
+*/
+				};
+                        };
 		};
 
 		tcon_tv: lcd-controller@6515000 {
