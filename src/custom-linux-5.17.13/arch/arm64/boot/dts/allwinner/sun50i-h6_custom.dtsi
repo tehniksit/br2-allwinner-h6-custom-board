@@ -827,10 +827,12 @@
 			compatible = "allwinner,sun50i-h6-tcon-top";
 			reg = <0x06510000 0x1000>;
 			clocks = <&ccu CLK_BUS_TCON_TOP>,
-				 <&ccu CLK_TCON_TV0>;
+				 <&ccu CLK_TCON_TV0>,
+				 <&ccu CLK_TCON_LCD0>;
 			clock-names = "bus",
-				      "tcon-tv0";
-			clock-output-names = "tcon-top-tv0";
+				      "tcon-tv0",
+				      "tcon-lcd0";
+			clock-output-names = "tcon-top-tv0", "tcon-top-lcd0";
 			resets = <&ccu RST_BUS_TCON_TOP>;
 			#clock-cells = <1>;
 
@@ -854,10 +856,17 @@
 					#size-cells = <0>;
 					reg = <1>;
 
+					tcon_top_mixer0_out_tcon_lcd: endpoint@0 {
+						reg = <0>;
+						remote-endpoint = <&tcon_lcd_in_tcon_top_mixer0>;
+					};
+
 					tcon_top_mixer0_out_tcon_tv: endpoint@2 {
 						reg = <2>;
 						remote-endpoint = <&tcon_tv_in_tcon_top_mixer0>;
 					};
+
+
 				};
 
 				tcon_top_hdmi_in: port@4 {
@@ -877,23 +886,55 @@
 					tcon_top_hdmi_out_hdmi: endpoint {
 						remote-endpoint = <&hdmi_in_tcon_top>;
 					};
+
 				};
+
 			};
 		};
 
+		tcon_lcd: lcd-controller@6511000 {
+			compatible = "allwinner,sun50i-h6-tcon-lcd";
+			reg = <0x06511000 0x1000>;
+			interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_BUS_TCON_LCD0>,
+				 <&tcon_top CLK_TCON_TOP_LCD0>;
+			clock-names = "ahb",
+				      "tcon-ch0";
+				clock-output-names = "tcon-pixel-clock";
+			resets =  <&ccu RST_BUS_TCON_LCD0>;
+			reset-names = "lcd";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				tcon_lcd_in: port@0 {
+					reg = <0>;
+
+					tcon_lcd_in_tcon_top_mixer0: endpoint@0 {
+						reg = <0>;
+						remote-endpoint = <&tcon_top_mixer0_out_tcon_lcd>;
+					};
+				};
+
+				tcon_lcd_out: port@1 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <1>;
+				};
+                        };
+		};
+
 		tcon_tv: lcd-controller@6515000 {
-			compatible = "allwinner,sun50i-h6-tcon-tv",
-				     "allwinner,sun8i-r40-tcon-tv";
+			compatible = "allwinner,sun8i-r40-tcon-tv";
 			reg = <0x06515000 0x1000>;
 			interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&ccu CLK_BUS_TCON_TV0>,
 				 <&tcon_top CLK_TCON_TOP_TV0>;
 			clock-names = "ahb",
-				      "tcon-ch0",
 				      "tcon-ch1";
 			resets = <&ccu RST_BUS_TCON_TV0>;
 			reset-names = "lcd";
-			clock-output-names = "tcon-pixel-clock";
 
 			ports {
 				#address-cells = <1>;

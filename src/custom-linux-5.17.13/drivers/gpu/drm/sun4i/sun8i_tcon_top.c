@@ -16,6 +16,7 @@
 #include "sun8i_tcon_top.h"
 
 struct sun8i_tcon_top_quirks {
+	bool has_tcon_lcd0;
 	bool has_tcon_tv1;
 	bool has_dsi;
 };
@@ -194,6 +195,12 @@ static int sun8i_tcon_top_bind(struct device *dev, struct device *master,
 					     &tcon_top->reg_lock,
 					     TCON_TOP_TCON_TV0_GATE, 0);
 
+	if (quirks->has_tcon_lcd0)
+		clk_data->hws[CLK_TCON_TOP_LCD0] =
+			sun8i_tcon_top_register_gate(dev, "tcon-lcd0", regs,
+						     &tcon_top->reg_lock,
+						     TCON_TOP_TCON_LCD0_GATE, 1);
+
 	if (quirks->has_tcon_tv1)
 		clk_data->hws[CLK_TCON_TOP_TV1] =
 			sun8i_tcon_top_register_gate(dev, "tcon-tv1", regs,
@@ -273,7 +280,7 @@ static const struct sun8i_tcon_top_quirks sun8i_r40_tcon_top_quirks = {
 };
 
 static const struct sun8i_tcon_top_quirks sun50i_h6_tcon_top_quirks = {
-	/* Nothing special */
+	.has_tcon_lcd0	= true,
 };
 
 /* sun4i_drv uses this list to check if a device node is a TCON TOP */

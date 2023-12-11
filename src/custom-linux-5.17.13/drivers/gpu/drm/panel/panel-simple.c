@@ -2189,6 +2189,32 @@ static const struct panel_desc innolux_zj070na_01p = {
 	},
 };
 
+static const struct drm_display_mode ej080na_modes = {
+	.clock = 40000,
+	.hdisplay = 800,
+	.hsync_start = 800 + 46,
+	.hsync_end = 800 + 46 + 210,
+	.htotal = 800 + 46 + 210 + 144,
+	.vdisplay = 600,
+	.vsync_start = 600 + 23,
+	.vsync_end = 600 + 23 + 12,
+	.vtotal = 600 + 23 + 12 + 65,
+	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+};
+
+static const struct panel_desc innolux_ej080na = {
+	.modes = &ej080na_modes,
+	.num_modes = 1,
+	.bpc = 8,
+	.size = {
+		.width = 71,
+		.height = 50,
+	},
+	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
+	.bus_flags = DRM_BUS_FLAG_DE_LOW,
+	.connector_type = DRM_MODE_CONNECTOR_DPI,
+};
+
 static const struct display_timing koe_tx14d24vm1bpa_timing = {
 	.pixelclock = { 5580000, 5850000, 6200000 },
 	.hactive = { 320, 320, 320 },
@@ -3812,6 +3838,9 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "innolux,at070tn92",
 		.data = &innolux_at070tn92,
+	}, {
+		.compatible = "innolux,ej080na",
+		.data = &innolux_ej080na,
 	}, {
 		.compatible = "innolux,g070y2-l01",
 		.data = &innolux_g070y2_l01,

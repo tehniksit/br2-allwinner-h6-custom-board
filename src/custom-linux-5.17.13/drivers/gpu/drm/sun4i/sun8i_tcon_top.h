@@ -20,6 +20,7 @@
 #define TCON_TOP_TCON_TV1_GATE			24
 #define TCON_TOP_TCON_TV0_GATE			20
 #define TCON_TOP_TCON_DSI_GATE			16
+#define TCON_TOP_TCON_LCD0_GATE			0
 
 #define CLK_NUM					3
 

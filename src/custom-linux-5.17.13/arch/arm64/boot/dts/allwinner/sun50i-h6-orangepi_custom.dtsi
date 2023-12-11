@@ -23,16 +23,16 @@
 		stdout-path = "display0";
 		compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
 		allwinner,pipeline = "mixer0-lcd0";
-		reg = <0x1d385000 276480>;
-		width = <480>;
-		height = <288>;
-		stride = <960>;
-		format = "r5g6b5";
+		reg = <0x1d385000 1440000>;
+		width = <800>;
+		height = <600>;
+		stride = <2400>;
+		format = "r8g8b8";
 		clocks = <&ccu CLK_BUS_TCON_TOP>,
-			<&ccu CLK_TCON_TV0>,
+			<&ccu CLK_TCON_LCD0>,
 			<&display_clocks CLK_MIXER0>;
 		lcd-supply = <&vdd_panel>;
-		display = <&tcon_tv>;
+		display = <&tcon_lcd>;
 		status = "okay";
 	};
 
@@ -45,6 +45,7 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
+
 	};
 
 	leds {
@@ -76,7 +77,7 @@
 	};
 
 	panel: panel {
-		compatible = "edt,etm043080dh6gp";
+		compatible = "innolux,ej080na";
 		backlight = <&backlight>;
 		power-supply = <&vdd_panel>;
 
@@ -119,13 +120,13 @@
 };
 */
 
-&tcon_tv {
+&tcon_lcd {
 	pinctrl-names = "default";
 	pinctrl-0 = <&lcd_rgb666_pins>;
 	status = "okay";
 };
 
-&tcon_tv_out {
+&tcon_lcd_out {
 	panel_out_rgb: endpoint@0 {
 		reg = <0>;
 		remote-endpoint = <&panel_in_rgb>;
