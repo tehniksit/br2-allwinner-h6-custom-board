@@ -17,25 +17,6 @@
 		serial0 = &uart0;
 	};
 
-	framebuffer0: framebuffer@1d385000 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		stdout-path = "display0";
-		compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
-		allwinner,pipeline = "mixer0-lcd0";
-		reg = <0x1d385000 1440000>;
-		width = <800>;
-		height = <600>;
-		stride = <2400>;
-		format = "r8g8b8";
-		clocks = <&ccu CLK_BUS_TCON_TOP>,
-			<&ccu CLK_TCON_LCD0>,
-			<&display_clocks CLK_MIXER0>;
-		lcd-supply = <&vdd_panel>;
-		display = <&tcon_lcd>;
-		status = "okay";
-	};
-
 	backlight: backlight {
 		compatible = "gpio-backlight";
 		gpios = <&pio 7 8 GPIO_ACTIVE_LOW>; /* PH8 */
@@ -45,7 +26,28 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
+/*
+		framebuffer0: framebuffer@1d385000 {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			stdout-path = "display0";
 
+			ranges;
+			compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
+			allwinner,pipeline = "mixer0-lcd0";
+			reg = <0x1d385000 (800 * 600 * 2)>;
+			width = <800>;
+			height = <600>;
+			stride = <(800 * 2)>;
+			format = "r5g6b5";
+			clocks = <&ccu CLK_BUS_TCON_TOP>,
+				<&ccu CLK_TCON_LCD0>,
+				<&display_clocks CLK_MIXER0>;
+			lcd-supply = <&vdd_panel>;
+			display = <&tcon_lcd>;
+			status = "okay";
+		};
+*/
 	};
 
 	leds {
@@ -80,30 +82,38 @@
 		compatible = "innolux,ej080na";
 		backlight = <&backlight>;
 		power-supply = <&vdd_panel>;
-
+		#address-cells = <1>;
+		#size-cells = <0>;
+		rotation = <90>;
+		status = "okay";
 /*
-		display-timings {
-			800x480p60 {
-				native-mode;
-				clock-frequency = <30066000>;
-				hactive = <800>;
-				vactive = <480>;
-				hfront-porch = <50>;
-				hback-porch = <70>;
-				hsync-len = <50>;
-				vback-porch = <0>;
-				vfront-porch = <0>;
-				vsync-len = <50>;
-			};
+		panel-timing {
+			clock-frequency = <40000000>;
+			hactive = <800>;
+			vactive = <600>;
+			hfront-porch = <8>;
+			hback-porch = <4>;
+			hsync-len = <41>;
+			vback-porch = <2>;
+			vfront-porch = <4>;
+			vsync-len = <10>;
+			hsync-active = <0>;
+			vsync-active = <0>;
+			de-active = <1>;
+			pixelclk-active = <1>;
 		};
 */
-		port {
-			panel_in_rgb: endpoint {
+		port@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			panel_in_rgb: endpoint@0 {
+				reg = <0>;
 				remote-endpoint = <&panel_out_rgb>;
 			};
 		};
 	};
-
 };
 
 &de {
@@ -116,6 +126,9 @@
 /*
 &simplefb_lcd {
 	panel-supply = <&vdd_panel>;
+	lcd-supply = <&vdd_panel>;
+	display = <&tcon_lcd>;
+
 	status = "okay";
 };
 */
@@ -154,16 +167,6 @@
 	vcc-pc-supply = <&reg_bldo2>;
 	vcc-pd-supply = <&reg_cldo1>;
 	vcc-pg-supply = <&reg_aldo1>;
-
-        lcd_rgb666_pins: lcd-rgb666-pins {
-                pins = "PD0", "PD1", "PD2", "PD3", "PD4",
-                       "PD5", "PD6", "PD7", "PD8", "PD9",
-                       "PD10", "PD11", "PD12", "PD13",
-                       "PD14", "PD15", "PD16", "PD17",
-                       "PD18", "PD19", "PD20", "PD21";
-                function = "lcd0";
-        };
-
 };
 
 &r_pio {

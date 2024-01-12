@@ -2205,13 +2205,13 @@ static const struct drm_display_mode ej080na_modes = {
 static const struct panel_desc innolux_ej080na = {
 	.modes = &ej080na_modes,
 	.num_modes = 1,
-	.bpc = 8,
+	.bpc = 6,
 	.size = {
 		.width = 71,
 		.height = 50,
 	},
-	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
-	.bus_flags = DRM_BUS_FLAG_DE_LOW,
+	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
+	.bus_flags = DRM_BUS_FLAG_DE_HIGH,
 	.connector_type = DRM_MODE_CONNECTOR_DPI,
 };
 
